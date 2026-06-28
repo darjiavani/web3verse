@@ -7,11 +7,7 @@ All 4 sections live in one HTML file — navigate without any page reload.
 
 | Page | What It Does |
 |------|-------------|
-| 🏠 **Home** | Landing page — hero with animated chain visual, 6 Web3 features, how blockchain works (4 steps), explore section 
-<img width="1920" height="1080" alt="Screenshot (321)" src="https://github.com/user-attachments/assets/50880562-61e6-4bf9-8092-3c7be0867694" />
-<img width="1920" height="1080" alt="Screenshot (321)" src="https://github.com/user-attachments/assets/69923af6-c444-41f2-a9f1-f8360ffaba42" />
-<img width="1920" height="1080" alt="Screenshot (321)" src="https://github.com/user-attachments/assets/8bedc440-a7a6-409b-893c-865265ac7e4b" />
-<img width="1920" height="1080" alt="Screenshot (321)" src="https://github.com/user-attachments/assets/8380087e-a4c5-4c3c-853a-a5a490381ec3" /> |
+| 🏠 **Home** | Landing page — hero with animated chain visual, 6 Web3 features, how blockchain works (4 steps), explore section|
 | 📚 **Concepts** | 4 side-by-side comparisons: Web2 vs Web3, Ethereum vs Bitcoin (table), Public vs Private Key, Blockchain vs Traditional DB |
 | 📈 **Live Prices** | Real-time ETH, BTC, SOL, MATIC, ARB, ADA from CoinGecko API — 24h change with ▲/▼ arrows, sparklines, coin filter |
 | ⛏️ **Block Simulator** | Real SHA-256 proof-of-work — mine Block 1, change its data, Block 2 breaks instantly (immutability demo) |
