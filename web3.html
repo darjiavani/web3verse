@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Web3Verse — Blockchain Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#070711;
+  --surface:#0d0d1a;
+  --card:#12121f;
+  --card2:#17172a;
+  --border:#252540;
+  --border2:#1e1e35;
+  --accent:#6c47ff;
+  --accent2:#00d9ff;
+  --accent3:#ff6b9d;
+  --green:#00e676;
+  --red:#ff3d71;
+  --yellow:#ffd740;
+  --text:#f0f0ff;
+  --muted:#5a5a80;
+  --muted2:#8888aa;
+  --font-head:'Syne',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;overflow-x:hidden}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+/* ── NAV ── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:999;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;
+  background:rgba(7,7,17,0.7);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(108,71,255,0.15);
+  transition:background 0.3s;
+}
+.nav-logo{
+  font-family:var(--font-head);font-size:1.2rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  cursor:pointer;text-decoration:none;letter-spacing:-0.02em;
+}
+.nav-links{display:flex;gap:0.25rem;list-style:none}
+.nav-links button{
+  background:none;border:none;cursor:pointer;
+  color:var(--muted2);font-family:var(--font-body);font-size:0.82rem;font-weight:500;
+  padding:0.4rem 0.9rem;border-radius:8px;transition:all 0.2s;
+}
+.nav-links button:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+.nav-links button.active{color:var(--accent2);background:rgba(108,71,255,0.15);border:1px solid rgba(108,71,255,0.3)}
+.nav-toggle{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:4px;padding:4px}
+.nav-toggle span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:0.3s}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;z-index:998;background:var(--surface);border-bottom:1px solid var(--border);padding:1rem;flex-direction:column;gap:0.25rem}
+.mobile-menu.open{display:flex}
+.mobile-menu button{background:none;border:none;cursor:pointer;color:var(--muted2);font-family:var(--font-body);font-size:0.9rem;font-weight:500;padding:0.65rem 1rem;border-radius:8px;text-align:left;transition:all 0.2s}
+.mobile-menu button:hover,.mobile-menu button.active{color:var(--accent2);background:rgba(108,71,255,0.12)}
+
+/* ── PAGE WRAPPER ── */
+.page{display:none;padding-top:60px;min-height:100vh}
+.page.active{display:block}
+
+/* ── SECTION COMMON ── */
+.section{padding:5rem 2rem}
+.container{max-width:1100px;margin:0 auto}
+.section-eyebrow{font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem}
+.section-title{font-family:var(--font-head);font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.75rem}
+.section-sub{color:var(--muted2);font-size:0.95rem;max-width:540px}
+
+/* ── GRADIENT TEXT ── */
+.grad{background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.grad2{background:linear-gradient(135deg,var(--accent2) 0%,var(--green) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border2);padding:2rem;text-align:center;color:var(--muted);font-size:0.8rem}
+footer a{color:var(--accent2);text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer strong{color:var(--text)}
+
+/* ═══════════════════════════════════
+   PAGE 1 — HOME
+═══════════════════════════════════ */
+.hero{
+  min-height:calc(100vh - 60px);
+  display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  padding:3rem 2rem;
+}
+.hero-noise{
+  position:absolute;inset:0;
+  background-image:radial-gradient(ellipse 80% 80% at 50% -10%,rgba(108,71,255,0.25),transparent),
+    radial-gradient(ellipse 40% 40% at 90% 60%,rgba(0,217,255,0.1),transparent);
+  pointer-events:none;
+}
+.hero-grid-bg{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(108,71,255,0.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(108,71,255,0.05) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 100% 100% at 50% 0%,black 30%,transparent 80%);
+}
+.hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;width:100%}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(108,71,255,0.12);border:1px solid rgba(108,71,255,0.3);
+  border-radius:100px;padding:0.3rem 0.9rem 0.3rem 0.5rem;
+  font-size:0.78rem;font-weight:500;color:var(--accent2);margin-bottom:1.75rem;
+}
+.hero-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{
+  font-family:var(--font-head);font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:800;letter-spacing:-0.04em;line-height:1.0;margin-bottom:1.5rem;
+}
+.hero-sub{font-size:1.1rem;color:var(--muted2);max-width:560px;margin-bottom:2.5rem;line-height:1.8}
+.hero-btns{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:4rem}
+.btn{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  padding:0.7rem 1.5rem;border-radius:10px;
+  font-family:var(--font-body);font-size:0.875rem;font-weight:600;
+  cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;
+}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#8b6dff);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(108,71,255,0.4)}
+.btn-ghost{background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent2)}
+
+/* Animated chain */
+.hero-chain{display:flex;align-items:center;gap:0;flex-wrap:wrap;row-gap:0.5rem}
+.hblock{
+  background:var(--card);border:1px solid var(--border2);border-radius:8px;
+  padding:0.55rem 0.85rem;cursor:default;transition:all 0.3s;
+}
+.hblock:hover{border-color:var(--accent);transform:translateY(-2px)}
+.hblock-num{font-family:var(--font-mono);font-size:0.6rem;color:var(--accent);margin-bottom:2px}
+.hblock-data{font-family:var(--font-mono);font-size:0.72rem;color:var(--muted2)}
+.hblock-hash{font-family:var(--font-mono);font-size:0.58rem;color:var(--muted);margin-top:2px}
+.chain-sep{color:var(--accent);font-size:1rem;padding:0 0.25rem;font-family:var(--font-mono)}
+
+/* Features */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;margin-top:2.5rem}
+.feat-card{
+  background:var(--card);border:1px solid var(--border2);border-radius:14px;
+  padding:1.75rem;transition:all 0.25s;position:relative;overflow:hidden;
+}
+.feat-card::after{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(135deg,rgba(108,71,255,0.06),transparent);
+  opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.feat-card:hover{border-color:rgba(108,71,255,0.4);transform:translateY(-3px)}
+.feat-card:hover::after{opacity:1}
+.feat-icon{font-size:1.5rem;margin-bottom:1rem}
+.feat-card h3{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:0.4rem}
+.feat-card p{font-size:0.83rem;color:var(--muted2);line-height:1.65}
+
+/* Stats row */
+.stats-row{display:flex;gap:3rem;flex-wrap:wrap;margin-top:3.5rem;padding-top:3rem;border-top:1px solid var(--border2)}
+.stat-item .num{font-family:var(--font-mono);font-size:2rem;font-weight:700;color:var(--accent2)}
+.stat-item .lbl{font-size:0.75rem;color:var(--muted);margin-top:2px}
+
+/* How it works */
+.how-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;margin-top:2.5rem;position:relative}
+.how-grid::before{
+  content:'';position:absolute;top:28px;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  pointer-events:none;
+}
+.step{text-align:center;padding:1rem}
+.step-circle{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--card2);border:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:0.9rem;font-weight:700;color:var(--accent2);
+  margin:0 auto 1rem;position:relative;z-index:1;
+}
+.step h4{font-family:var(--font-head);font-size:0.9rem;font-weight:700;margin-bottom:0.35rem}
+.step p{font-size:0.78rem;color:var(--muted2);line-height:1.6}
+
+/* ═══════════════════════════════════
+   PAGE 2 — CONCEPTS
+═══════════════════════════════════ */
+.page-header{padding:4rem 2rem 1.5rem;max-width:1100px;margin:0 auto}
+.concept-section{padding:1.5rem 2rem 3rem;max-width:1100px;margin:0 auto}
+
+/* VS Cards */
+.vs-wrap{background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-bottom:1.5rem}
+.vs-label{
+  background:rgba(108,71,255,0.1);border-bottom:1px solid var(--border2);
+  padding:0.75rem 1.5rem;
+  font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.vs-grid{display:grid;grid-template-columns:1fr 60px 1fr}
+.vs-col{padding:1.5rem}
+.vs-head{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.vs-col.a .vs-head{color:#ff6b6b}
+.vs-col.b .vs-head{color:var(--accent2)}
+.vs-col.a{border-right:1px solid var(--border2)}
+.vs-center{display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border2)}
+.vs-badge{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--card2);border:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:0.6rem;font-weight:700;color:var(--accent);
+}
+.vs-points{list-style:none;display:flex;flex-direction:column;gap:0.55rem}
+.vs-points li{font-size:0.82rem;color:var(--muted2);padding-left:1.2rem;position:relative;line-height:1.55}
+.vs-col.a .vs-points li::before{content:'✗';position:absolute;left:0;color:#ff6b6b;font-size:0.7rem;top:1px}
+.vs-col.b .vs-points li::before{content:'✓';position:absolute;left:0;color:var(--green);font-size:0.7rem;top:1px}
+
+/* Table */
+.concept-table-wrap{background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;margin-bottom:1.5rem}
+.concept-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.concept-table th{background:rgba(108,71,255,0.1);color:var(--muted2);font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.08em;text-align:left;padding:0.75rem 1.25rem;border-bottom:1px solid var(--border2)}
+.concept-table th.btc{color:#f7931a}
+.concept-table th.eth{color:#627eea}
+.concept-table td{padding:0.8rem 1.25rem;border-bottom:1px solid rgba(37,37,64,0.5);color:var(--muted2);vertical-align:top;line-height:1.5}
+.concept-table tr:last-child td{border-bottom:none}
+.concept-table tr:hover td{background:rgba(108,71,255,0.04);color:var(--text)}
+.concept-table td:first-child{font-weight:600;color:var(--muted2);font-size:0.78rem;white-space:nowrap}
+
+/* Key cards */
+.key-pair{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.key-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:1.5rem}
+.key-card.pub{border-top:3px solid var(--accent2)}
+.key-card.priv{border-top:3px solid var(--accent)}
+.key-card h3{font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:0.75rem}
+.key-card.pub h3{color:var(--accent2)}
+.key-card.priv h3{color:var(--accent)}
+.key-demo{
+  background:var(--bg);border:1px solid var(--border2);border-radius:6px;
+  padding:0.5rem 0.75rem;font-family:var(--font-mono);font-size:0.62rem;
+  color:var(--green);word-break:break-all;margin:0.75rem 0;line-height:1.6;
+}
+.key-card p{font-size:0.8rem;color:var(--muted2);line-height:1.65}
+.analogy{
+  background:rgba(0,217,255,0.06);border:1px solid rgba(0,217,255,0.15);
+  border-radius:6px;padding:0.65rem 0.85rem;font-size:0.78rem;color:var(--muted2);margin-top:0.75rem;
+}
+.analogy strong{color:var(--accent2)}
+
+/* ═══════════════════════════════════
+   PAGE 3 — PRICES
+═══════════════════════════════════ */
+.prices-main{max-width:1100px;margin:0 auto;padding:1.5rem 2rem 4rem}
+.toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem}
+.search-wrap{position:relative}
+.search-input{
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:0.5rem 0.75rem 0.5rem 2rem;color:var(--text);
+  font-family:var(--font-body);font-size:0.85rem;outline:none;transition:border-color 0.2s;width:240px;
+}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--muted)}
+.search-icon{position:absolute;left:0.65rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.8rem;pointer-events:none}
+.upd-label{font-family:var(--font-mono);font-size:0.72rem;color:var(--muted)}
+.upd-label span{color:var(--green)}
+
+/* Coin cards */
+.coins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.coin-card{
+  background:var(--card);border:1px solid var(--border2);border-radius:14px;
+  padding:1.4rem;transition:all 0.25s;position:relative;overflow:hidden;
+}
+.coin-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cc-color,var(--accent))}
+.coin-card:hover{border-color:rgba(108,71,255,0.4);transform:translateY(-3px)}
+.coin-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.coin-id{display:flex;align-items:center;gap:0.65rem}
+.coin-icon-wrap{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.06);font-size:1.2rem;
+  border:1px solid var(--border);
+}
+.coin-name{font-family:var(--font-head);font-weight:700;font-size:0.95rem}
+.coin-sym{font-family:var(--font-mono);font-size:0.68rem;color:var(--muted);margin-top:1px}
+.coin-rank{font-family:var(--font-mono);font-size:0.62rem;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:0.2rem 0.5rem;border-radius:4px}
+.coin-price{font-family:var(--font-mono);font-size:1.65rem;font-weight:700;margin-bottom:0.5rem;letter-spacing:-0.02em}
+.coin-change{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-family:var(--font-mono);font-size:0.82rem;font-weight:700;
+  padding:0.22rem 0.55rem;border-radius:6px;
+}
+.coin-change.up{color:var(--green);background:rgba(0,230,118,0.1)}
+.coin-change.down{color:var(--red);background:rgba(255,61,113,0.1)}
+.sparkline-wrap{margin-top:1rem;height:44px;overflow:hidden}
+canvas.spark{width:100%;height:44px}
+
+/* Skeleton */
+.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem}
+.skel-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:1.4rem;height:180px;position:relative;overflow:hidden}
+.skel-card::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* Error */
+.err-box{background:var(--card);border:1px solid rgba(255,61,113,0.3);border-radius:12px;padding:2.5rem;text-align:center}
+.err-box h3{color:var(--red);margin-bottom:0.5rem;font-family:var(--font-head)}
+.err-box p{color:var(--muted2);font-size:0.85rem}
+
+/* ═══════════════════════════════════
+   PAGE 4 — SIMULATOR
+═══════════════════════════════════ */
+.sim-main{max-width:1100px;margin:0 auto;padding:1.5rem 2rem 4rem}
+
+.concepts-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0.75rem;margin-bottom:2rem}
+.concept-chip{background:var(--card2);border:1px solid var(--border2);border-radius:10px;padding:1rem}
+.concept-chip h4{font-family:var(--font-head);font-size:0.85rem;font-weight:700;color:var(--accent2);margin-bottom:0.3rem;display:flex;align-items:center;gap:0.35rem}
+.concept-chip p{font-size:0.77rem;color:var(--muted2);line-height:1.55}
+
+.insight{
+  background:rgba(108,71,255,0.07);border:1px solid rgba(108,71,255,0.2);
+  border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.75rem;
+  font-size:0.85rem;color:var(--muted2);line-height:1.65;
+}
+.insight strong{color:var(--accent2)}
+
+/* Block cards */
+.chain-row{display:flex;align-items:flex-start;gap:0;flex-wrap:wrap}
+.block-card{
+  flex:1;min-width:300px;max-width:480px;
+  background:var(--card);border:2px solid var(--border);
+  border-radius:16px;padding:1.5rem;transition:border-color 0.3s;
+}
+.block-card.valid{border-color:var(--green)}
+.block-card.invalid{border-color:var(--red);animation:shake 0.4s ease}
+.block-card.mining{border-color:var(--accent);animation:pulseborder 0.8s ease infinite alternate}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes pulseborder{from{box-shadow:0 0 0 rgba(108,71,255,0)}to{box-shadow:0 0 20px rgba(108,71,255,0.35)}}
+.block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.block-num-lbl{font-family:var(--font-mono);font-size:0.68rem;color:var(--accent);letter-spacing:0.1em;text-transform:uppercase}
+.block-status{font-family:var(--font-mono);font-size:0.68rem;font-weight:700;padding:0.22rem 0.6rem;border-radius:4px}
+.block-status.valid{background:rgba(0,230,118,0.12);color:var(--green)}
+.block-status.invalid{background:rgba(255,61,113,0.12);color:var(--red)}
+.block-status.mining{background:rgba(108,71,255,0.12);color:var(--accent2)}
+.block-status.pending{background:rgba(90,90,128,0.15);color:var(--muted2)}
+
+.field{display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.85rem}
+.field label{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.field input,.field textarea{
+  background:var(--bg);border:1px solid var(--border);border-radius:7px;
+  color:var(--text);font-family:var(--font-mono);font-size:0.75rem;
+  padding:0.5rem 0.7rem;outline:none;transition:border-color 0.2s;width:100%;resize:none;
+}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.field input[readonly]{color:var(--muted);cursor:default}
+
+.hash-box{
+  background:var(--bg);border:1px solid var(--border);border-radius:7px;
+  padding:0.5rem 0.7rem;font-family:var(--font-mono);font-size:0.68rem;
+  word-break:break-all;line-height:1.6;min-height:2.6rem;
+  color:var(--muted);transition:color 0.3s,border-color 0.3s;
+}
+.hash-box.valid{color:var(--green);border-color:rgba(0,230,118,0.3)}
+.hash-box.invalid{color:var(--red);border-color:rgba(255,61,113,0.2)}
+
+.mine-btn{
+  width:100%;margin-top:1rem;padding:0.75rem;border-radius:9px;
+  font-family:var(--font-head);font-size:0.9rem;font-weight:700;
+  cursor:pointer;border:none;color:#fff;
+  background:linear-gradient(135deg,var(--accent),#a07cfc);
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.4rem;
+}
+.mine-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 24px rgba(108,71,255,0.4)}
+.mine-btn:disabled{opacity:0.55;cursor:not-allowed;transform:none}
+
+.progress-wrap{margin-top:0.75rem;display:none;flex-direction:column;gap:0.35rem}
+.progress-wrap.show{display:flex}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:prog 1.2s ease infinite;width:60%}
+@keyframes prog{0%{transform:translateX(-100%)}100%{transform:translateX(220%)}};
+.progress-txt{font-family:var(--font-mono);font-size:0.68rem;color:var(--accent)}
+
+.chain-arrow-wrap{display:flex;align-items:center;align-self:center;padding:0 0.5rem;margin-top:-1.5rem}
+.arrow-svg{color:var(--accent);font-size:1.5rem;font-family:var(--font-mono)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  #nav{padding:0 1rem}
+  .nav-links{display:none}
+  .nav-toggle{display:flex}
+  .section,.sim-main,.prices-main{padding-left:1rem;padding-right:1rem}
+  .hero{padding:2rem 1rem}
+  .vs-grid{grid-template-columns:1fr}
+  .vs-center{display:none}
+  .vs-col.a{border-right:none;border-bottom:1px solid var(--border2)}
+  .key-pair{grid-template-columns:1fr}
+  .chain-row{flex-direction:column}
+  .chain-arrow-wrap{transform:rotate(90deg);align-self:flex-start;margin-left:calc(50% - 1rem);margin-top:0.25rem}
+  .how-grid::before{display:none}
+  .stats-row{gap:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <span class="nav-logo" onclick="goTo('home')">Web3Verse</span>
+  <button class="nav-toggle" onclick="toggleMobile()" aria-label="menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links">
+    <li><button id="nav-home" class="active" onclick="goTo('home')">Home</button></li>
+    <li><button id="nav-concepts" onclick="goTo('concepts')">Concepts</button></li>
+    <li><button id="nav-prices" onclick="goTo('prices')">Live Prices</button></li>
+    <li><button id="nav-simulator" onclick="goTo('simulator')">Block Simulator</button></li>
+  </ul>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <button onclick="goTo('home');toggleMobile()">🏠 Home</button>
+  <button onclick="goTo('concepts');toggleMobile()">📚 Concepts</button>
+  <button onclick="goTo('prices');toggleMobile()">📈 Live Prices</button>
+  <button onclick="goTo('simulator');toggleMobile()">⛏️ Block Simulator</button>
+</div>
+
+<!-- ══════════════ PAGE 1: HOME ══════════════ -->
+<div class="page active" id="page-home">
+
+  <section class="hero">
+    <div class="hero-noise"></div>
+    <div class="hero-grid-bg"></div>
+    <div class="hero-inner">
+      <div class="hero-badge"><span class="hero-badge-dot"></span> Web3 Educational Platform — Arbitrum Builder Pods</div>
+      <h1>The Internet is<br/><span class="grad">being rewritten.</span></h1>
+      <p class="hero-sub">Understand blockchain, decentralization, and Web3 from scratch — through live data, interactive tools, and crystal-clear visual explainers.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="goTo('concepts')">Explore Concepts →</button>
+        <button class="btn btn-ghost" onclick="goTo('simulator')">⛏️ Try Mining Simulator</button>
+      </div>
+
+      <!-- Live chain visual -->
+      <div class="hero-chain">
+        <div class="hblock">
+          <div class="hblock-num">BLOCK #0 — GENESIS</div>
+          <div class="hblock-data">prevHash: 000000...0000</div>
+          <div class="hblock-hash">hash: 00a3f9c2d...</div>
+        </div>
+        <span class="chain-sep">──▶</span>
+        <div class="hblock">
+          <div class="hblock-num">BLOCK #1</div>
+          <div class="hblock-data">Alice → Bob: 5 ETH</div>
+          <div class="hblock-hash">hash: 00b7e2a1f...</div>
+        </div>
+        <span class="chain-sep">──▶</span>
+        <div class="hblock">
+          <div class="hblock-num">BLOCK #2</div>
+          <div class="hblock-data">Bob → Carol: 2 ETH</div>
+          <div class="hblock-hash">hash: 00d1c4e8b...</div>
+        </div>
+        <span class="chain-sep">──▶</span>
+        <div class="hblock" style="border-color:var(--accent);border-style:dashed">
+          <div class="hblock-num" style="color:var(--accent2)">BLOCK #3 — NEXT</div>
+          <div class="hblock-data">Pending...</div>
+          <div class="hblock-hash" style="color:var(--accent)">mining...</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-item"><div class="num">4</div><div class="lbl">Interactive Pages</div></div>
+        <div class="stat-item"><div class="num">SHA-256</div><div class="lbl">Real Hashing</div></div>
+        <div class="stat-item"><div class="num">Live</div><div class="lbl">Crypto Price Feed</div></div>
+        <div class="stat-item"><div class="num">0</div><div class="lbl">Trusted Middlemen Needed</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Web3 -->
+  <section class="section" style="background:var(--surface)">
+    <div class="container">
+      <div class="section-eyebrow">Why Web3 Matters</div>
+      <div class="section-title">The <span class="grad">6 pillars</span> of the<br/>decentralized internet</div>
+      <p class="section-sub" style="margin-bottom:0">Web3 isn't a buzzword — it's a fundamental rethinking of who controls the internet.</p>
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-icon">🔗</div>
+          <h3>Decentralization</h3>
+          <p>No single company owns your data. Information is replicated across thousands of nodes globally, making censorship and single-point failures nearly impossible.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🔐</div>
+          <h3>Cryptographic Security</h3>
+          <p>Every transaction is locked by SHA-256 hashing and public-key cryptography. Alter one block in the chain and everything downstream breaks instantly.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">📜</div>
+          <h3>Smart Contracts</h3>
+          <p>Self-executing code deployed on-chain. Agreements run automatically when conditions are met — no banks, no lawyers, no delays.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">👛</div>
+          <h3>True Ownership</h3>
+          <p>Your private key = your assets, forever. Unlike Web2 where platforms can delete your account, Web3 gives you sovereign, permanent control.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">⚡</div>
+          <h3>Trustless Transactions</h3>
+          <p>Send value to anyone, anywhere without a bank as gatekeeper. The network itself validates every transaction through consensus, not authority.</p>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🌐</div>
+          <h3>Permissionless & Open</h3>
+          <p>Anyone can build on public blockchains. No NDAs, no corporate approval — just deploy a smart contract and it runs forever on a censorship-resistant network.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How Blockchain Works -->
+  <section class="section">
+    <div class="container">
+      <div class="section-eyebrow">Under The Hood</div>
+      <div class="section-title">From transaction<br/>to <span class="grad2">confirmed block</span></div>
+      <div class="how-grid">
+        <div class="step"><div class="step-circle">01</div><h4>Tx Broadcast</h4><p>A user signs a transaction with their private key and broadcasts it to the network's mempool.</p></div>
+        <div class="step"><div class="step-circle">02</div><h4>Miners Compete</h4><p>Nodes race to find a nonce that makes the block hash meet the difficulty target (starts with zeros).</p></div>
+        <div class="step"><div class="step-circle">03</div><h4>Block Validated</h4><p>The winning miner broadcasts the valid block. All other nodes verify the SHA-256 hash independently.</p></div>
+        <div class="step"><div class="step-circle">04</div><h4>Chain Extended</h4><p>The new block is appended, storing the previous block's hash — linking it permanently to the chain.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explore -->
+  <section class="section" style="background:var(--surface)">
+    <div class="container">
+      <div class="section-eyebrow">Explore Web3Verse</div>
+      <div class="section-title">Four pages.<br/>One complete picture.</div>
+      <div class="features-grid" style="margin-top:2rem">
+        <div class="feat-card" style="cursor:pointer" onclick="goTo('concepts')">
+          <div class="feat-icon">📚</div>
+          <h3>Concepts →</h3>
+          <p>Web2 vs Web3, ETH vs BTC, Public vs Private Keys, Blockchain vs Traditional Databases — all side-by-side.</p>
+        </div>
+        <div class="feat-card" style="cursor:pointer" onclick="goTo('prices')">
+          <div class="feat-icon">📈</div>
+          <h3>Live Prices →</h3>
+          <p>Real-time ETH, BTC, SOL, MATIC, ARB prices from CoinGecko. Sparklines, 24h change, refresh on demand.</p>
+        </div>
+        <div class="feat-card" style="cursor:pointer" onclick="goTo('simulator')">
+          <div class="feat-icon">⛏️</div>
+          <h3>Block Simulator →</h3>
+          <p>Real SHA-256 proof-of-work. Mine blocks, increment nonces, and watch the chain shatter when you tamper.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Built by <strong>Avani</strong> &nbsp;·&nbsp; <a href="https://github.com/" target="_blank">GitHub ↗</a> &nbsp;·&nbsp; Arbitrum Builder Pods — Batch 2025</p>
+  </footer>
+</div>
+
+<!-- ══════════════ PAGE 2: CONCEPTS ══════════════ -->
+<div class="page" id="page-concepts">
+  <div class="page-header">
+    <div class="section-eyebrow">Web3 Fundamentals</div>
+    <div class="section-title">Core <span class="grad">Concepts</span></div>
+    <p class="section-sub">Four side-by-side comparisons that cut through the jargon. Written in plain language, not textbook dumps.</p>
+  </div>
+
+  <div class="concept-section">
+
+    <!-- 1: Web2 vs Web3 -->
+    <div class="vs-wrap">
+      <div class="vs-label">📌 Concept 01 — Web2 vs Web3</div>
+      <div class="vs-grid">
+        <div class="vs-col a">
+          <div class="vs-head">🏢 Web2</div>
+          <ul class="vs-points">
+            <li>Data owned and stored by corporations (Google, Meta, Amazon)</li>
+            <li>Centralized servers — one breach can expose millions of users</li>
+            <li>Platforms can ban, censor, or delete your account anytime</li>
+            <li>Identity is tied to usernames on each specific platform</li>
+            <li>You trust the company to act honestly with your data</li>
+            <li>Value is captured by the platform, creators get a fraction</li>
+            <li>Permission needed to build and integrate with platforms</li>
+          </ul>
+        </div>
+        <div class="vs-center"><div class="vs-badge">VS</div></div>
+        <div class="vs-col b">
+          <div class="vs-head">🌐 Web3</div>
+          <ul class="vs-points">
+            <li>You own your data via cryptographic keys — no middleman</li>
+            <li>Distributed nodes — no single point of attack or failure</li>
+            <li>Permissionless — wallets cannot be banned or deleted</li>
+            <li>Identity is your wallet address, portable across all dApps</li>
+            <li>Trust is enforced by code and math, not company reputation</li>
+            <li>Value flows directly to users, creators, and contributors</li>
+            <li>Open protocols — anyone can build on top without approval</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2: ETH vs BTC -->
+    <div class="concept-table-wrap">
+      <div class="vs-label">⚡ Concept 02 — Ethereum vs Bitcoin</div>
+      <table class="concept-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="btc">₿ Bitcoin (BTC)</th>
+            <th class="eth">Ξ Ethereum (ETH)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Primary Purpose</td><td>Digital gold / store of value</td><td>Programmable money + smart contract platform</td></tr>
+          <tr><td>Created By</td><td>Satoshi Nakamoto (2009) — anonymous</td><td>Vitalik Buterin (2015)</td></tr>
+          <tr><td>Consensus</td><td>Proof of Work — energy-intensive mining</td><td>Proof of Stake since The Merge (Sep 2022)</td></tr>
+          <tr><td>Smart Contracts</td><td>Very limited — basic Script language only</td><td>Full Turing-complete via Solidity</td></tr>
+          <tr><td>Max Supply</td><td>21 million BTC — hard cap, forever</td><td>No hard cap, but deflationary via EIP-1559 burn</td></tr>
+          <tr><td>Block Time</td><td>~10 minutes</td><td>~12 seconds</td></tr>
+          <tr><td>Energy Usage</td><td>High — requires massive mining hardware</td><td>99.9% lower after switching to PoS</td></tr>
+          <tr><td>Ecosystem</td><td>Store of value, Lightning Network payments</td><td>DeFi, NFTs, DAOs, Layer 2s (Arbitrum, Optimism)</td></tr>
+          <tr><td>Native Currency</td><td>BTC (satoshi = 0.00000001 BTC)</td><td>ETH (gwei / wei are sub-units)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 3: Public vs Private Key -->
+    <div class="vs-wrap" style="margin-bottom:1.5rem">
+      <div class="vs-label">🔑 Concept 03 — Public Key vs Private Key</div>
+      <div class="key-pair" style="padding:1.25rem">
+        <div class="key-card pub">
+          <h3>🔓 Public Key (Address)</h3>
+          <div class="key-demo">0x4B0897b0513fdc7C541B6d9D7E929C4e5364D2dB</div>
+          <p>Your shareable blockchain address. Anyone can see it and use it to send you ETH or tokens. Derived mathematically from your private key, but the derivation is a one-way function — knowing the public key reveals nothing about the private key.</p>
+          <div class="analogy"><strong>Analogy:</strong> Your home address. Anyone can send you mail — knowing the address doesn't give them entry.</div>
+        </div>
+        <div class="key-card priv">
+          <h3>🔐 Private Key — NEVER SHARE</h3>
+          <div class="key-demo" style="color:var(--red)">⚠ a3f8c2d...NEVER SHARE THIS WITH ANYONE...7e19b4f</div>
+          <p>A secret 256-bit number that proves you own a wallet. Used to digitally sign every transaction. If someone obtains your private key, they have permanent, irreversible control of all your assets. No customer support, no recovery.</p>
+          <div class="analogy"><strong>Analogy:</strong> The master key to your house + bank vault combined. Lose it — you're locked out. Share it — you've handed over everything permanently.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4: Blockchain vs Traditional DB -->
+    <div class="vs-wrap">
+      <div class="vs-label">🗄️ Concept 04 — Blockchain vs Traditional Databases</div>
+      <div class="vs-grid">
+        <div class="vs-col a">
+          <div class="vs-head">🗄️ Traditional Database</div>
+          <ul class="vs-points">
+            <li>One company or admin has full control (can edit/delete anything)</li>
+            <li>Records can be silently modified without any public trace</li>
+            <li>Requires authentication and permission to access</li>
+            <li>Extremely fast — handles millions of transactions per second</li>
+            <li>Efficient storage — no duplication across nodes</li>
+            <li>Trust depends entirely on the company running it</li>
+            <li>Single target for hackers to attack</li>
+          </ul>
+        </div>
+        <div class="vs-center"><div class="vs-badge">VS</div></div>
+        <div class="vs-col b">
+          <div class="vs-head">⛓️ Blockchain</div>
+          <ul class="vs-points">
+            <li>Thousands of nodes hold equal copies — no central authority</li>
+            <li>Immutable — past records mathematically cannot be altered</li>
+            <li>Open and permissionless — anyone can read and write</li>
+            <li>Slower — ~15–30 TPS on L1 (Layer 2 solves this)</li>
+            <li>Redundant — every node stores the full chain history</li>
+            <li>Trustless — math and consensus enforce the rules</li>
+            <li>No central attack target — need to control 51%+ of nodes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <footer>
+    <p>Built by <strong>Avani</strong> &nbsp;·&nbsp; <a href="https://github.com/" target="_blank">GitHub ↗</a> &nbsp;·&nbsp; Arbitrum Builder Pods — Batch 2025</p>
+  </footer>
+</div>
+
+<!-- ══════════════ PAGE 3: PRICES ══════════════ -->
+<div class="page" id="page-prices">
+  <div class="page-header">
+    <div class="section-eyebrow">Real-time data via CoinGecko API</div>
+    <div class="section-title">Live Crypto <span class="grad">Prices</span></div>
+    <p class="section-sub">Market data fetched on demand. No API key required. Prices in USD.</p>
+  </div>
+
+  <div class="prices-main">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Filter coins..." oninput="filterCoins()"/>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+        <span class="upd-label" id="updLabel">Not fetched yet</span>
+        <button class="btn btn-primary" id="refreshBtn" onclick="fetchPrices()" style="padding:0.5rem 1.1rem">⟳ Refresh</button>
+      </div>
+    </div>
+    <div id="pricesContent">
+      <div class="skeleton-grid">
+        <div class="skel-card"></div><div class="skel-card"></div>
+        <div class="skel-card"></div><div class="skel-card"></div>
+        <div class="skel-card"></div><div class="skel-card"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Built by <strong>Avani</strong> &nbsp;·&nbsp; <a href="https://github.com/" target="_blank">GitHub ↗</a> &nbsp;·&nbsp; Arbitrum Builder Pods — Batch 2025</p>
+  </footer>
+</div>
+
+<!-- ══════════════ PAGE 4: SIMULATOR ══════════════ -->
+<div class="page" id="page-simulator">
+  <div class="page-header">
+    <div class="section-eyebrow">Proof-of-Work — SHA-256</div>
+    <div class="section-title">Block Mining <span class="grad">Simulator</span></div>
+    <p class="section-sub">Mine real SHA-256 blocks with nonce search. Tamper with Block 1 and watch Block 2 shatter.</p>
+  </div>
+
+  <div class="sim-main">
+    <div class="concepts-strip">
+      <div class="concept-chip"><h4>⛏️ Nonce</h4><p>A number miners keep incrementing until the hash output starts with "00" — simulating proof-of-work difficulty.</p></div>
+      <div class="concept-chip"><h4>#️⃣ SHA-256</h4><p>A one-way cryptographic function. Change one character of input and the output hash changes completely and unpredictably.</p></div>
+      <div class="concept-chip"><h4>🔗 Previous Hash</h4><p>Each block stores the hash of the previous block. This linking is what forms a "chain" and makes history tamper-proof.</p></div>
+      <div class="concept-chip"><h4>🧱 Immutability</h4><p>Change Block 1's data → its hash changes → Block 2's stored "prevHash" no longer matches → Block 2 instantly becomes invalid.</p></div>
+    </div>
+
+    <div class="insight">
+      💡 <strong>The Core Insight:</strong> Mine Block 1 below. Then go back and edit its data field. Block 2 will break immediately — not because of magic, but because the hash link snaps. This is blockchain immutability in action.
+    </div>
+
+    <div class="chain-row">
+      <!-- BLOCK 1 -->
+      <div class="block-card" id="b1card">
+        <div class="block-header">
+          <span class="block-num-lbl">Block #1</span>
+          <span class="block-status pending" id="b1status">Unmined</span>
+        </div>
+        <div class="field">
+          <label>Previous Hash</label>
+          <input type="text" value="0000000000000000000000000000000000000000000000000000000000000000" readonly id="b1prev"/>
+        </div>
+        <div class="field">
+          <label>Block Data</label>
+          <textarea rows="2" id="b1data" oninput="onB1Change()">Alice sends 5 ETH to Bob</textarea>
+        </div>
+        <div class="field">
+          <label>Nonce</label>
+          <input type="number" id="b1nonce" value="0" readonly/>
+        </div>
+        <div class="field">
+          <label>Hash (SHA-256 output)</label>
+          <div class="hash-box" id="b1hash">Not mined yet — click Mine below</div>
+        </div>
+        <div class="progress-wrap" id="b1prog">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-txt" id="b1progtxt">Trying nonce 0...</div>
+        </div>
+        <button class="mine-btn" id="b1btn" onclick="mineBlock(1)">⛏️ Mine Block 1</button>
+      </div>
+
+      <!-- Arrow -->
+      <div class="chain-arrow-wrap">
+        <span class="arrow-svg">──▶</span>
+      </div>
+
+      <!-- BLOCK 2 -->
+      <div class="block-card" id="b2card">
+        <div class="block-header">
+          <span class="block-num-lbl">Block #2</span>
+          <span class="block-status pending" id="b2status">Waiting for Block 1</span>
+        </div>
+        <div class="field">
+          <label>Previous Hash (auto-filled from Block 1)</label>
+          <div class="hash-box" id="b2prev" style="font-size:0.62rem">Mine Block 1 first to populate this...</div>
+        </div>
+        <div class="field">
+          <label>Block Data</label>
+          <textarea rows="2" id="b2data" oninput="onB2Change()">Bob sends 2 ETH to Carol</textarea>
+        </div>
+        <div class="field">
+          <label>Nonce</label>
+          <input type="number" id="b2nonce" value="0" readonly/>
+        </div>
+        <div class="field">
+          <label>Hash (SHA-256 output)</label>
+          <div class="hash-box" id="b2hash">Not mined yet</div>
+        </div>
+        <div class="progress-wrap" id="b2prog">
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-txt" id="b2progtxt">Trying nonce 0...</div>
+        </div>
+        <button class="mine-btn" id="b2btn" onclick="mineBlock(2)" disabled>⛏️ Mine Block 2</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Built by <strong>Avani</strong> &nbsp;·&nbsp; <a href="https://github.com/" target="_blank">GitHub ↗</a> &nbsp;·&nbsp; Arbitrum Builder Pods — Batch 2025</p>
+  </footer>
+</div>
+
+<script>
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+const pages = ['home','concepts','prices','simulator'];
+let currentPage = 'home';
+let pricesFetched = false;
+
+function goTo(page) {
+  pages.forEach(p => {
+    document.getElementById('page-'+p).classList.toggle('active', p===page);
+    const btn = document.getElementById('nav-'+p);
+    if(btn) btn.classList.toggle('active', p===page);
+  });
+  currentPage = page;
+  window.scrollTo({top:0,behavior:'instant'});
+  if(page==='prices' && !pricesFetched) { pricesFetched=true; fetchPrices(); }
+}
+
+function toggleMobile() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ═══════════════════════════════
+// PAGE 3 — LIVE PRICES
+// ═══════════════════════════════
+const COINS = [
+  {id:'bitcoin',       name:'Bitcoin',  sym:'BTC',  icon:'₿', color:'#f7931a', rank:'#1'},
+  {id:'ethereum',      name:'Ethereum', sym:'ETH',  icon:'Ξ', color:'#627eea', rank:'#2'},
+  {id:'solana',        name:'Solana',   sym:'SOL',  icon:'◎', color:'#9945ff', rank:'#5'},
+  {id:'matic-network', name:'Polygon',  sym:'MATIC',icon:'⬡', color:'#8247e5', rank:'#13'},
+  {id:'arbitrum',      name:'Arbitrum', sym:'ARB',  icon:'🔵',color:'#12aaff', rank:'#~30'},
+  {id:'cardano',       name:'Cardano',  sym:'ADA',  icon:'₳', color:'#0033ad', rank:'#9'},
+];
+
+let allCoinCards = [];
+
+function fmtPrice(p) {
+  if(p>=1000) return '$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(p>=1) return '$'+p.toFixed(4);
+  return '$'+p.toFixed(6);
+}
+
+function drawSpark(canvas, change) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth || 260;
+  const H = canvas.height = 44;
+  const up = change >= 0;
+  const col = up ? '#00e676' : '#ff3d71';
+  const pts = [];
+  let v = H/2;
+  for(let i=0;i<=14;i++){
+    const trend = up ? -0.4 : 0.4;
+    v = Math.max(4,Math.min(H-4, v+trend+(Math.random()*7-3.5)));
+    pts.push({x:(i/14)*W,y:v});
+  }
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,col+'44'); g.addColorStop(1,col+'00');
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();
+  ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,pts[0].y);
+  pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();
+}
+
+function renderCoins(data) {
+  const html = COINS.map(c => {
+    const d = data[c.id]; if(!d) return '';
+    const chg = d.usd_24h_change;
+    const up = chg >= 0;
+    const arrow = up ? '▲' : '▼';
+    return `<div class="coin-card" style="--cc-color:${c.color}" data-n="${c.name.toLowerCase()} ${c.sym.toLowerCase()}">
+      <div class="coin-top">
+        <div class="coin-id">
+          <div class="coin-icon-wrap" style="color:${c.color}">${c.icon}</div>
+          <div><div class="coin-name">${c.name}</div><div class="coin-sym">${c.sym}</div></div>
+        </div>
+        <div class="coin-rank">${c.rank}</div>
+      </div>
+      <div class="coin-price">${fmtPrice(d.usd)}</div>
+      <div class="coin-change ${up?'up':'down'}">${arrow} ${Math.abs(chg).toFixed(2)}% (24h)</div>
+      <div class="sparkline-wrap"><canvas class="spark" id="sp-${c.id}"></canvas></div>
+    </div>`;
+  }).join('');
+  document.getElementById('pricesContent').innerHTML = `<div class="coins-grid" id="coinsGrid">${html}</div>`;
+  allCoinCards = [...document.querySelectorAll('.coin-card')];
+  requestAnimationFrame(()=>{
+    COINS.forEach(c=>{
+      const d=data[c.id]; if(!d) return;
+      const cv=document.getElementById('sp-'+c.id);
+      if(cv) drawSpark(cv,d.usd_24h_change);
+    });
+  });
+}
+
+function filterCoins() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  allCoinCards.forEach(c=>{ c.style.display = c.dataset.n.includes(q)?'':'none'; });
+}
+
+async function fetchPrices() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled=true; btn.textContent='Loading...';
+  document.getElementById('pricesContent').innerHTML=`<div class="skeleton-grid">${'<div class="skel-card"></div>'.repeat(6)}</div>`;
+  const ids = COINS.map(c=>c.id).join(',');
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    renderCoins(data);
+    const now = new Date();
+    document.getElementById('updLabel').innerHTML=`Updated: <span>${now.toLocaleTimeString()}</span>`;
+  } catch(e) {
+    document.getElementById('pricesContent').innerHTML=`<div class="err-box"><h3>⚠ Couldn't fetch prices</h3><p>CoinGecko may be rate-limiting. Wait ~60s and try again.</p><p style="font-family:var(--font-mono);font-size:0.72rem;margin-top:0.5rem;color:var(--muted)">${e.message}</p><button class="btn btn-ghost" onclick="fetchPrices()" style="margin-top:1rem">Try Again</button></div>`;
+    document.getElementById('updLabel').textContent='Failed to fetch';
+  }
+  btn.disabled=false; btn.textContent='⟳ Refresh';
+}
+
+// ═══════════════════════════════
+// PAGE 4 — BLOCK SIMULATOR
+// ═══════════════════════════════
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+let b1Hash=null, b1Mined=false, b2Mined=false, isMining=false;
+
+function setBlock(n, state) {
+  const labels = {valid:'✓ Block Valid',invalid:'✗ Block Invalid',mining:'⛏ Mining...',pending:n===1?'Unmined':'Waiting for Block 1'};
+  document.getElementById('b'+n+'card').className='block-card '+state;
+  const s = document.getElementById('b'+n+'status');
+  s.className='block-status '+state;
+  s.textContent = labels[state]||state;
+}
+
+function setHash(id, val, state) {
+  const el=document.getElementById(id);
+  el.textContent=val; el.className='hash-box '+(state||'');
+}
+
+async function mineBlock(n) {
+  if(isMining) return;
+  isMining=true;
+  const btn=document.getElementById('b'+n+'btn');
+  const prog=document.getElementById('b'+n+'prog');
+  const progtxt=document.getElementById('b'+n+'progtxt');
+  btn.disabled=true;
+  prog.classList.add('show');
+  setBlock(n,'mining');
+
+  const prev = n===1 ? document.getElementById('b1prev').value : b1Hash;
+  const data = document.getElementById('b'+n+'data').value;
+  let nonce=0, hash='';
+
+  while(!hash.startsWith('00')) {
+    if(nonce%100===0){ progtxt.textContent=`Trying nonce ${nonce}...`; await new Promise(r=>setTimeout(r,0)); }
+    hash = await sha256(`${prev}${data}${nonce}`);
+    if(!hash.startsWith('00')) nonce++;
+  }
+
+  prog.classList.remove('show');
+  document.getElementById('b'+n+'nonce').value=nonce;
+
+  if(n===1) {
+    b1Hash=hash; b1Mined=true;
+    setHash('b1hash',hash,'valid');
+    setBlock(1,'valid');
+    // propagate
+    setHash('b2prev',hash,'valid');
+    document.getElementById('b2prev').style.fontSize='0.65rem';
+    document.getElementById('b2btn').disabled=false;
+    setBlock(2,'pending');
+    document.getElementById('b2status').textContent='Ready to Mine';
+    b2Mined=false;
+    setHash('b2hash','Not mined yet','');
+    document.getElementById('b2nonce').value=0;
+  } else {
+    b2Mined=true;
+    setHash('b2hash',hash,'valid');
+    setBlock(2,'valid');
+  }
+  btn.disabled=false;
+  isMining=false;
+}
+
+async function onB1Change() {
+  if(!b1Mined) return;
+  const prev=document.getElementById('b1prev').value;
+  const data=document.getElementById('b1data').value;
+  const nonce=+document.getElementById('b1nonce').value||0;
+  const h = await sha256(`${prev}${data}${nonce}`);
+  const valid=h.startsWith('00');
+  setHash('b1hash',h,valid?'valid':'invalid');
+  setBlock(1,valid?'valid':'invalid');
+  // Break chain
+  setHash('b2prev',h,'invalid');
+  b1Hash=h;
+  setBlock(2,'invalid');
+  b2Mined=false;
+}
+
+async function onB2Change() {
+  if(!b2Mined) return;
+  const data=document.getElementById('b2data').value;
+  const nonce=+document.getElementById('b2nonce').value||0;
+  const h = await sha256(`${b1Hash}${data}${nonce}`);
+  const valid=h.startsWith('00');
+  setHash('b2hash',h,valid?'valid':'invalid');
+  setBlock(2,valid?'valid':'invalid');
+}
+</script>
+</body>
+</html>
