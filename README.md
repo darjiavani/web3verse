@@ -52,6 +52,22 @@ python -m http.server 8080
 - CoinGecko free API has rate limits — if error appears, wait ~60s and refresh
 - Mining speed depends on browser (SHA-256 is async, UI stays responsive)
 
+## screenshots 
+## HOMEPAGE
+<img width="1920" height="1080" alt="Screenshot (321)" src="https://github.com/user-attachments/assets/0fd8577e-542a-4e2d-a3f4-953013a894ef" />
+<img width="1920" height="1080" alt="Screenshot (322)" src="https://github.com/user-attachments/assets/297966b1-2d31-4be4-8cf7-a8b12f29c80f" />
+<img width="1920" height="1080" alt="Screenshot (323)" src="https://github.com/user-attachments/assets/858351e8-eff6-4fa2-83f2-231138d288e4" />
+<img width="1920" height="1080" alt="Screenshot (324)" src="https://github.com/user-attachments/assets/600770fc-cb09-41ac-84d3-9df5f260d56b" />
+
+## CORECONCEPTS
+<img width="1920" height="1080" alt="Screenshot (325)" src="https://github.com/user-attachments/assets/aa55c81f-998b-4cbc-b6f7-ede2fac44685" />
+<img width="1920" height="1080" alt="Screenshot (326)" src="https://github.com/user-attachments/assets/6a4b574d-3c3f-4ce5-9e6e-250948528ead" />
+<img width="1920" height="1080" alt="Screenshot (327)" src="https://github.com/user-attachments/assets/e98d796f-8623-41f1-b8f3-fbbcb06fc49d" />
+<img width="1920" height="1080" alt="Screenshot (328)" src="https://github.com/user-attachments/assets/667ccecb-5f50-4e2c-aa33-cde7de47782e" />
+
+## BLOCK SIMULATOR
+<img width="1920" height="1080" alt="Screenshot (329)" src="https://github.com/user-attachments/assets/f74d66f5-020b-4f28-869a-e316634f153c" />
+<img width="1920" height="1080" alt="Screenshot (330)" src="https://github.com/user-attachments/assets/46ff97e9-7bde-4629-b7a4-79b41e2d5c9b" />
 ---
 
 Built by **Avani** · Arbitrum Builder Pods Batch 2025
